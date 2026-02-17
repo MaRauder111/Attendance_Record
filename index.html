@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Daily Timestamp Log</title>
+</head>
+<body>
+
+  <button onclick="recordTime()">Record Timestamp</button>
+  <ul id="list"></ul>
+
+  <script>
+    function recordTime() {
+      const now = new Date();
+      const todayKey = now.toISOString().split('T')[0];
+
+      localStorage.setItem(todayKey, now.toString());
+      renderList();
+    }
+
+    function renderList() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+
+      Object.keys(localStorage)
+        .sort()
+        .forEach(key => {
+          const value = localStorage.getItem(key);
+          const li = document.createElement("li");
+          li.innerText = key + " → " + value;
+          list.appendChild(li);
+        });
+    }
+
+      function recordTime() {
+      const now = new Date();
+      const todayKey = now.toISOString().split('T')[0];
+
+      if (localStorage.getItem(todayKey)) {
+        alert("Timestamp already recorded today");
+        return;
+      }
+
+      localStorage.setItem(todayKey, now.toString());
+      renderList();
+    }
+
+    window.onload = renderList;
+  </script>
+
+</body>
+</html>
