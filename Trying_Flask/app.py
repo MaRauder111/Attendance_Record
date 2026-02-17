@@ -29,14 +29,28 @@ def save_timestamp():
     day_key = now.strftime("%Y-%m-%d")
     time_value = now.strftime("%H:%M:%S")
 
+    if day_key in data:
+        return jsonify({
+            "status": "exists",
+            "day": day_key,
+            "time": data[day_key]
+        })
+
     data[day_key] = time_value
     save_data(data)
 
-    return jsonify({"day": day_key, "time": time_value})
+    return jsonify({
+        "status": "saved",
+        "day": day_key,
+        "time": time_value
+    })
 
 @app.route("/history")
 def history():
     return jsonify(load_data())
 
+import os
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
