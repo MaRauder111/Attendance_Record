@@ -5,47 +5,72 @@
 </head>
 <body>
 
-  <button onclick="recordTime()">Record Timestamp</button>
-  <ul id="list"></ul>
+<button onclick="recordTime()">Record Timestamp</button>
+<div id="container"></div>
 
-  <script>
-    function recordTime() {
-      const now = new Date();
-      const todayKey = now.toISOString().split('T')[0];
+<script>
+function getWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const pastDays = Math.floor((date - firstDay) / 86400000);
+  return Math.ceil((pastDays + firstDay.getDay() + 1) / 7);
+}
 
-      localStorage.setItem(todayKey, now.toString());
-      renderList();
-    }
+function recordTime() {
+  const now = new Date();
+  const todayKey = now.toISOString().split('T')[0];
 
-    function renderList() {
-      const list = document.getElementById("list");
-      list.innerHTML = "";
+  if (localStorage.getItem(todayKey)) {
+    alert("Timestamp already recorded today");
+    return;
+  }
 
-      Object.keys(localStorage)
-        .sort()
-        .forEach(key => {
-          const value = localStorage.getItem(key);
-          const li = document.createElement("li");
-          li.innerText = key + " → " + value;
-          list.appendChild(li);
-        });
-    }
+  localStorage.setItem(todayKey, now.toString());
+  renderList();
+}
 
-      function recordTime() {
-      const now = new Date();
-      const todayKey = now.toISOString().split('T')[0];
+function renderList() {
+  const container = document.getElementById("container");
+  container.innerHTML = "";
 
-      if (localStorage.getItem(todayKey)) {
-        alert("Timestamp already recorded today");
-        return;
+  const grouped = {};
+
+  Object.keys(localStorage)
+    .sort()
+    .forEach(key => {
+      const date = new Date(key);
+      const week = getWeekNumber(date);
+      const year = date.getFullYear();
+      const groupKey = "Week " + week + " (" + year + ")";
+
+      if (!grouped[groupKey]) {
+        grouped[groupKey] = [];
       }
 
-      localStorage.setItem(todayKey, now.toString());
-      renderList();
-    }
+      grouped[groupKey].push({
+        day: key,
+        value: localStorage.getItem(key)
+      });
+    });
 
-    window.onload = renderList;
-  </script>
+  Object.keys(grouped).forEach(week => {
+    const h3 = document.createElement("h3");
+    h3.innerText = week;
+    container.appendChild(h3);
+
+    const ul = document.createElement("ul");
+
+    grouped[week].forEach(entry => {
+      const li = document.createElement("li");
+      li.innerText = entry.day + " → " + entry.value;
+      ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
+  });
+}
+
+window.onload = renderList;
+</script>
 
 </body>
 </html>
